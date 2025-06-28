@@ -1,0 +1,15 @@
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - vendor
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        # Ignore Google API classes that might not be available during static analysis
+        - '#Undefined type.*Google_#'
+        - '#Access to an undefined property.*Google_#'
+        - '#Call to method.*on an unknown class Google_#'
+        # Ignore Illuminate classes when not available
+        - '#Undefined type.*Illuminate\\#'

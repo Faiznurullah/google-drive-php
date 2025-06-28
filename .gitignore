@@ -1,0 +1,31 @@
+# Credentials and tokens
+credentials.json
+access_token.json 
+
+# Vendor directory
+vendor/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+.phpunit.cache/
+phpunit.xml.local
+
+# Log files
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+
+# enviroment
+.env

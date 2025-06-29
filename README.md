@@ -1,506 +1,492 @@
 # Google Drive PHP Library
 
-A simple and powerful PHP library for interacting with Google Drive API. This library provides an intuitive interface for managing files and folders in Google Drive with comprehensive examples and real-world usage patterns.
+A modern PHP library for Google Drive integration using **Static Design Pattern**. Simple, clean, and powerful - no object instantiation required.
 
-## ✨ Features
+## 🎯 Key Features
 
-- 🚀 **Simple & Intuitive API** - Easy-to-use methods for all Google Drive operations
-- 📁 **Complete File Management** - Upload, download, move, delete files and folders
-- 🔄 **Real-world Examples** - Comprehensive examples for every operation
-- 🔑 **Flexible Authentication** - Support for access tokens, refresh tokens, and environment variables
-- ✅ **Production Ready** - Error handling, retry logic, and robust file operations
-- 🧪 **Tested & Verified** - All examples tested and working
-- 📝 **Well Documented** - Clear documentation with working code samples
-
-## 📋 Requirements
-
-- PHP 7.4 or higher
-- Google Drive API credentials
-- Composer for dependency management
+- ✅ **Static Methods** - Direct usage without object creation
+- ✅ **Auto-Initialization** - Reads credentials from environment
+- ✅ **Clean API** - Intuitive method names inspired by Laravel Storage
+- ✅ **Facade Pattern** - Alternative access through GDrive facade  
+- ✅ **Production Ready** - Comprehensive error handling
+- ✅ **Framework Agnostic** - Works with any PHP project
+- ✅ **Laravel Compatible** - Easy Laravel integration
+- ✅ **Batch Operations** - Handle multiple files efficiently
 
 ## 🚀 Installation
 
 ```bash
-# Clone or download this library
-git clone https://github.com/faiznurullah/google-drive-php.git
-cd google-drive-php
-
-# Install dependencies
-composer install
+composer require faiznurullah/google-drive-php
 ```
 
-## ⚙️ Setup
+## ⚡ Quick Start
 
-### 1. Get Google Drive API Credentials
-
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create or select a project
-3. Enable Google Drive API
-4. Create OAuth 2.0 credentials
-5. Get your Client ID, Client Secret, and Refresh Token
-
-### 2. Configure Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# Required credentials
+### 1. Environment Setup
+```bash
+# .env file
 GOOGLE_DRIVE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_DRIVE_CLIENT_SECRET=your-client-secret
-
-# For automatic token refresh
 GOOGLE_DRIVE_REFRESH_TOKEN=your-refresh-token
-
-# Current access token (will be refreshed automatically)
-GOOGLE_DRIVE_ACCESS_TOKEN=your-access-token
+GOOGLE_DRIVE_ACCESS_TOKEN=your-access-token  # optional
 ```
 
-> 💡 **Need help getting tokens?** Use [Google OAuth 2.0 Playground](https://developers.google.com/oauthplayground) with your credentials.
-
-### 3. Quick Test
-
-```bash
-# Test your credentials and basic operations
-php quick_start.php
-```
-
-## 📖 Basic Usage
-
-### Using SimpleDrive Helper Class
+### 2. Basic Usage
 
 ```php
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/src/SimpleDrive.php';
+require_once 'vendor/autoload.php';
 
-// Load environment variables
-if (file_exists(__DIR__ . '/.env')) {
-    $env = parse_ini_file(__DIR__ . '/.env');
-    foreach ($env as $key => $value) {
-        putenv("$key=$value");
-    }
-}
+use GoogleDrivePHP\GoogleDrive;
 
-use GoogleDrivePHP\SimpleDrive;
-
-// Initialize from environment
-$drive = SimpleDrive::fromEnv();
-
-// Upload file
-$fileId = $drive->put('test.txt', 'Hello World!');
-echo "Uploaded: $fileId\n";
+// Upload file (auto-initialize from environment)
+$fileId = GoogleDrive::put('hello.txt', 'Hello World!');
 
 // Download file
-$content = $drive->get('test.txt');
-echo "Downloaded: $content\n";
+$content = GoogleDrive::get('hello.txt');
 
 // List files
-$files = $drive->files();
-foreach ($files as $file) {
-    echo "- " . $file['name'] . " (" . $file['id'] . ")\n";
-}
-
-// Check if file exists
-if ($drive->exists('test.txt')) {
-    echo "File exists!\n";
-}
+$files = GoogleDrive::files();
 
 // Delete file
-$drive->delete('test.txt');
-echo "File deleted\n";
+GoogleDrive::delete('hello.txt');
 ```
 
-### Direct Google API Usage
+### 3. Using Facade (Alternative)
+
+```php
+use GoogleDrivePHP\Facades\GDrive;
+
+$fileId = GDrive::put('hello.txt', 'Hello World!');
+$content = GDrive::get('hello.txt');
+```
+
+## 📖 Complete API Reference
+
+### File Operations
+
+```php
+// Upload & Download
+GoogleDrive::put($filename, $content, $folderId = null)
+GoogleDrive::putFile($localPath, $filename = null, $folderId = null)
+GoogleDrive::get($filename)
+GoogleDrive::getById($fileId)
+GoogleDrive::downloadToFile($filename, $localPath)
+
+// File Management
+GoogleDrive::delete($filename)
+GoogleDrive::deleteById($fileId)
+GoogleDrive::copy($source, $destination, $folderId = null)
+GoogleDrive::move($filename, $folderId)
+GoogleDrive::rename($oldName, $newName)
+
+// File Info
+GoogleDrive::exists($filename)
+GoogleDrive::getFileInfo($filename)
+```
+
+### Folder Operations
+
+```php
+GoogleDrive::makeDir($folderName, $parentId = null)
+GoogleDrive::deleteDir($folderName)
+GoogleDrive::folders($parentId = null, $limit = 100)
+GoogleDrive::findFolderId($folderName)
+```
+
+### Search & Listing
+
+```php
+GoogleDrive::files($folderId = null, $limit = 100)
+GoogleDrive::search($query, $limit = 100)
+GoogleDrive::all($folderId = null, $recursive = false)
+```
+
+### Sharing
+
+```php
+GoogleDrive::shareWithEmail($filename, $email, $role = 'reader')
+GoogleDrive::makePublic($filename)
+GoogleDrive::getShareableLink($filename)
+```
+
+### Batch Operations
+
+```php
+GoogleDrive::putMultiple($files, $folderId = null)
+GoogleDrive::deleteMultiple($filenames)
+GoogleDrive::backupFolder($folderId = null, $localPath = './backup')
+```
+
+## 🔧 Advanced Configuration
+
+### Manual Initialization
+```php
+// If you don't want to use environment variables
+GoogleDrive::init([
+    'client_id' => 'your-client-id',
+    'client_secret' => 'your-client-secret',
+    'refresh_token' => 'your-refresh-token',
+    'access_token' => 'your-access-token'  // optional
+]);
+```
+
+### From Credentials File
+```php
+GoogleDrive::initFromCredentialsFile('credentials.json', $refreshToken, $accessToken);
+```
+
+## 💡 Usage Examples
+$fileId = $drive->putFile('/path/to/local/file.pdf');
+
+// Upload to specific folder
+$fileId = $drive->put('file.txt', $content, $folderId);
+
+// Upload with custom filename and MIME type
+$fileId = $drive->putFile('/path/file.jpg', 'custom-name.jpg', $folderId, 'image/jpeg');
+
+// Batch upload
+$files = [
+    'file1.txt' => 'Content 1',
+    'file2.txt' => 'Content 2'
+];
+$results = $drive->putMultiple($files, $folderId);
+```
+
+### File Download
+
+```php
+// Download as string
+$content = $drive->get('filename.txt');
+
+// Download by file ID
+$content = $drive->getById($fileId);
+
+// Download to local file
+$drive->downloadToFile('remote-file.pdf', '/local/path/file.pdf');
+
+// Check if file exists
+if ($drive->exists('filename.txt')) {
+    // File exists
+}
+```
+
+### File Management
+
+```php
+// Copy file
+$newFileId = $drive->copy('source.txt', 'copy.txt', $targetFolderId);
+
+// Move file to folder
+$drive->move('filename.txt', $folderId);
+
+// Rename file
+$drive->rename('old-name.txt', 'new-name.txt');
+
+// Delete file
+$drive->delete('filename.txt');
+
+// Delete by ID
+$drive->deleteById($fileId);
+
+// Get file information
+$info = $drive->getFileInfo('filename.txt');
+echo "Size: {$info['size']}, Modified: {$info['modifiedTime']}";
+```
+
+### Folder Operations
+
+```php
+// Create folder
+$folderId = $drive->makeDirectory('My Folder');
+
+// Create nested folder
+$subfolderId = $drive->makeDirectory('Subfolder', $folderId);
+
+// List all folders
+$folders = $drive->folders();
+
+// List folders in specific folder
+$subfolders = $drive->folders($parentFolderId);
+
+// Find folder ID by name
+$folderId = $drive->findFolderId('My Folder');
+
+// Delete folder
+$drive->deleteDirectory('Folder Name');
+```
+
+### File Listing & Search
+
+```php
+// List all files
+$files = $drive->files();
+
+// List files in folder
+$files = $drive->files($folderId);
+
+// Search files by name
+$results = $drive->search('vacation');
+
+// Limit results
+$files = $drive->files(null, 50); // Max 50 files
+$results = $drive->search('query', 20); // Max 20 results
+```
+
+### File Sharing
+
+```php
+// Share with specific email
+$drive->shareWithEmail('filename.txt', 'user@example.com', 'reader');
+
+// Share with write access
+$drive->shareWithEmail('filename.txt', 'user@example.com', 'writer');
+
+// Make file public
+$publicLink = $drive->makePublic('filename.txt');
+echo "Public link: $publicLink";
+
+// Get shareable link
+$link = $drive->getShareableLink('filename.txt');
+```
+
+### Batch Operations
+
+```php
+// Delete multiple files
+$filesToDelete = ['file1.txt', 'file2.txt', 'file3.txt'];
+$results = $drive->deleteMultiple($filesToDelete);
+
+// Backup entire folder
+$backupResults = $drive->backupFolder($folderId, './backup-folder');
+foreach ($backupResults as $filename => $result) {
+    if ($result['success']) {
+        echo "✅ Backed up: $filename\n";
+    }
+}
+```
+
+## Laravel Integration
+
+### Controller Example
 
 ```php
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
 
-// Load environment variables
-if (file_exists(__DIR__ . '/.env')) {
-    $env = parse_ini_file(__DIR__ . '/.env');
-    foreach ($env as $key => $value) {
-        putenv("$key=$value");
-    }
-}
+namespace App\Http\Controllers;
 
-// Initialize Google Drive
-$client = new Google\Client();
-$client->setClientId(getenv('GOOGLE_DRIVE_CLIENT_ID'));
-$client->setClientSecret(getenv('GOOGLE_DRIVE_CLIENT_SECRET'));
-$client->setAccessToken(getenv('GOOGLE_DRIVE_ACCESS_TOKEN'));
+use GoogleDrivePHP\GoogleDrive;
+use Illuminate\Http\Request;
 
-$service = new Google\Service\Drive($client);
-
-// Upload a file
-$fileMetadata = new Google\Service\Drive\DriveFile(['name' => 'test.txt']);
-$content = "Hello, Google Drive!";
-$file = $service->files->create($fileMetadata, [
-    'data' => $content,
-    'mimeType' => 'text/plain',
-    'uploadType' => 'multipart'
-]);
-
-echo "File uploaded with ID: " . $file->getId() . "\n";
-```
-
-## 🎯 Complete Examples Collection
-
-This library includes comprehensive examples for all operations:
-
-### 🚀 Quick Start
-```bash
-# Test all basic operations
-php quick_start.php
-```
-
-**What it does:**
-- ✅ Tests credentials
-- ✅ Uploads a test file
-- ✅ Lists files in your Drive
-- ✅ Downloads the file
-- ✅ Verifies content
-- ✅ Cleans up test files
-
-### 📋 Interactive Examples Menu
-```bash
-# Access all examples through interactive menu
-php examples/operations/index.php
-```
-
-### 📁 Individual Operation Examples
-
-#### 1. Upload Operations
-```bash
-php examples/operations/upload_example.php
-```
-**Features:**
-- Upload from string content
-- Upload from local files
-- Upload JSON and CSV data
-- Multiple file uploads
-- Upload verification
-
-#### 2. Move Operations
-```bash
-php examples/operations/move_example.php
-```
-**Features:**
-- Create folders and subfolders
-- Move files between folders
-- Move folders to other folders
-- Upload directly to specific folders
-- List folder contents
-
-#### 3. Delete Operations
-```bash
-php examples/operations/delete_example.php
-```
-**Features:**
-- Delete individual files
-- Backup files before deletion
-- Delete multiple files by pattern
-- Delete folders recursively
-- Safe delete with confirmation
-
-#### 4. Download Operations
-```bash
-php examples/operations/download_example.php
-```
-**Features:**
-- Download individual files
-- Batch download multiple files
-- Download to specific local paths
-- Download with progress tracking
-- File information retrieval
-
-## 🛠️ Core Classes
-
-### SimpleDrive
-Main helper class for common operations:
-
-```php
-$drive = SimpleDrive::fromEnv();
-
-// File operations
-$fileId = $drive->put($filename, $content);           // Upload file
-$content = $drive->get($filename);                    // Download file
-$success = $drive->delete($filename);                 // Delete file
-$exists = $drive->exists($filename);                  // Check if exists
-$files = $drive->files();                             // List all files
-
-// Folder operations
-$folderId = $drive->makeDirectory($folderName);       // Create folder
-```
-
-### Extended Classes
-Examples include extended classes with advanced features:
-
-- **`DriveManager`** - Advanced move and folder operations
-- **`DriveDeleter`** - Safe deletion with backup options  
-- **`DriveDownloader`** - Batch downloads with progress tracking
-
-## 🔧 Error Handling
-
-The library includes robust error handling:
-
-```php
-try {
-    $content = $drive->get('test.txt');
-    echo "Downloaded: $content\n";
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
-    
-    // Handle specific errors
-    if (strpos($e->getMessage(), 'File not found') !== false) {
-        echo "The file doesn't exist\n";
-    } elseif (strpos($e->getMessage(), 'Unauthorized') !== false) {
-        echo "Check your credentials\n";
-    }
-}
-```
-
-## 📊 Authentication Methods
-
-### Method 1: Environment Variables (Recommended)
-```php
-// Load from .env file automatically
-$drive = SimpleDrive::fromEnv();
-```
-
-### Method 2: Direct Initialization
-```php
-$drive = new SimpleDrive(
-    clientId: 'your-client-id',
-    clientSecret: 'your-client-secret', 
-    refreshToken: 'your-refresh-token',
-    accessToken: 'your-access-token'
-);
-```
-
-### Method 3: Google Client Direct
-```php
-$client = new Google\Client();
-$client->setClientId('your-client-id');
-$client->setClientSecret('your-client-secret');
-$client->setAccessToken('your-access-token');
-
-$service = new Google\Service\Drive($client);
-```
-
-## 🔍 Testing Your Setup
-
-### Basic Credential Test
-```bash
-php test_credentials.php
-```
-
-### Quick Operations Test
-```bash
-php quick_start.php
-```
-
-### Specific Operation Tests
-```bash
-# Test specific file operations
-php test_json_data.php        # Test delete operation
-php final_test_new.php        # Comprehensive test
-```
-
-## 📚 Dependencies
-
-This library uses:
-- `google/apiclient` - Google API Client Library
-- `google/apiclient-services` - Google Drive API services
-- Standard PHP extensions (json, curl, openssl)
-
-Already included via composer.json:
-```json
+class DriveController extends Controller
 {
-    "require": {
-        "google/apiclient": "^2.0"
+    private $drive;
+    
+    public function __construct()
+    {
+        $this->drive = GoogleDrive::fromEnv();
+    }
+    
+    public function upload(Request $request)
+    {
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $fileId = $this->drive->putFile(
+                $file->getPathname(),
+                $file->getClientOriginalName(),
+                null,
+                $file->getMimeType()
+            );
+            
+            return response()->json(['fileId' => $fileId]);
+        }
+        
+        return response()->json(['error' => 'No file uploaded'], 400);
+    }
+    
+    public function download($filename)
+    {
+        $content = $this->drive->get($filename);
+        
+        if (!$content) {
+            return abort(404);
+        }
+        
+        return response($content)
+            ->header('Content-Type', 'application/octet-stream')
+            ->header('Content-Disposition', "attachment; filename=\"$filename\"");
+    }
+    
+    public function list()
+    {
+        $files = $this->drive->files();
+        return response()->json($files);
     }
 }
 ```
 
-## 🎯 Common Use Cases
+### Service Provider
 
-### 1. File Backup System
 ```php
-// Backup local files to Google Drive
-$drive = SimpleDrive::fromEnv();
-$localFiles = glob('/path/to/backup/*');
+<?php
 
-foreach ($localFiles as $file) {
-    $content = file_get_contents($file);
-    $fileId = $drive->put(basename($file), $content);
-    echo "Backed up: " . basename($file) . " (ID: $fileId)\n";
+namespace App\Providers;
+
+use GoogleDrivePHP\GoogleDrive;
+use Illuminate\Support\ServiceProvider;
+
+class GoogleDriveServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        $this->app->singleton(GoogleDrive::class, function ($app) {
+            return GoogleDrive::fromEnv();
+        });
+    }
 }
 ```
 
-### 2. Data Export to Drive
+### Laravel Integration
 ```php
-// Export data as JSON to Google Drive
-$data = [
-    'export_date' => date('Y-m-d H:i:s'),
-    'records' => fetchDataFromDatabase()
+// In Laravel Controller
+use GoogleDrivePHP\Facades\GDrive;
+
+class FileController extends Controller
+{
+    public function upload(Request $request)
+    {
+        $file = $request->file('upload');
+        $fileId = GDrive::putFile($file->path(), $file->getClientOriginalName());
+        
+        return response()->json(['file_id' => $fileId]);
+    }
+    
+    public function download($filename)
+    {
+        $content = GDrive::get($filename);
+        return response($content)->header('Content-Type', 'application/octet-stream');
+    }
+}
+```
+
+### Backup System
+```php
+// Daily backup script
+$backupData = file_get_contents('database.sql');
+$filename = 'backup-' . date('Y-m-d') . '.sql';
+$fileId = GoogleDrive::put($filename, $backupData);
+echo "Backup uploaded: $fileId\n";
+```
+
+### File Manager
+```php
+// Create project structure
+$projectId = GoogleDrive::makeDir('My Project');
+$docsId = GoogleDrive::makeDir('Documents', $projectId);
+$imagesId = GoogleDrive::makeDir('Images', $projectId);
+
+// Upload files to folders
+GoogleDrive::put('readme.txt', $content, $docsId);
+GoogleDrive::putFile('logo.png', null, $imagesId);
+
+// List project files
+$projectFiles = GoogleDrive::all($projectId, true);
+```
+
+### Batch Processing
+```php
+// Upload multiple files
+$files = [
+    'file1.txt' => 'Content 1',
+    'file2.txt' => 'Content 2', 
+    'file3.txt' => 'Content 3'
 ];
+$results = GoogleDrive::putMultiple($files);
 
-$jsonContent = json_encode($data, JSON_PRETTY_PRINT);
-$fileId = $drive->put('export_' . date('Y-m-d') . '.json', $jsonContent);
-echo "Data exported with ID: $fileId\n";
-```
-
-### 3. File Processing Pipeline
-```php
-// Download, process, and re-upload files
-$files = $drive->files();
-
-foreach ($files as $file) {
-    if (strpos($file['name'], '.txt') !== false) {
-        // Download file
-        $content = $drive->get($file['name']);
-        
-        // Process content
-        $processedContent = strtoupper($content);
-        
-        // Upload processed version
-        $newName = 'processed_' . $file['name'];
-        $drive->put($newName, $processedContent);
-        
-        echo "Processed: {$file['name']} -> $newName\n";
+// Process results
+foreach ($results as $filename => $result) {
+    if ($result['success']) {
+        echo "✅ $filename uploaded (ID: {$result['fileId']})\n";
+    } else {
+        echo "❌ $filename failed: {$result['error']}\n";
     }
 }
 ```
 
-## 🚨 Troubleshooting
+## 🔐 Credentials Setup
 
-### Common Issues
+### Get Google Drive API Credentials
 
-#### 1. Authentication Errors
+1. **Google Cloud Console**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create new project or select existing
+   - Enable Google Drive API
+
+2. **Create OAuth 2.0 Credentials**
+   - Go to Credentials → Create Credentials → OAuth client ID
+   - Choose "Desktop Application"
+   - Download JSON file
+
+3. **Get Refresh Token**
+   ```bash
+   php scripts/get_refresh_token.php
+   ```
+
+For detailed setup guide, see [CREDENTIALS.md](CREDENTIALS.md)
+
+## 🏗️ Design Pattern
+
+This library uses **Static Helper Pattern** inspired by [yaza-putu/laravel-google-drive-storage](https://github.com/yaza-putu/laravel-google-drive-storage):
+
+- **Static Methods**: No object instantiation required
+- **Auto-initialization**: Reads from environment automatically  
+- **Facade Pattern**: Alternative access through GDrive facade
+- **Factory Pattern**: Clean client creation and configuration
+- **Interface Contract**: Ensures consistent API
+
+For complete design pattern documentation, see [README_STATIC.md](README_STATIC.md)
+
+## 📁 Examples
+
+Check the [examples/](examples/) directory for complete usage examples:
+
+- `examples/static_pattern_demo.php` - Complete feature demonstration
+- `simple_static.php` - Simple usage example
+- `static_example.php` - Advanced usage patterns
+
+## 🧪 Testing
+
+```bash
+# Run tests
+composer test
+
+# Test specific feature
+php simple_static.php
 ```
-Error: Unauthorized / Invalid credentials
-```
-**Solution:**
-- Check your Client ID and Client Secret in `.env`
-- Verify your refresh token is not expired
-- Regenerate access token using Google OAuth Playground
-
-#### 2. File Not Found
-```
-Error: File not found
-```
-**Solution:**
-- Verify file exists in Google Drive using `$drive->files()`
-- Check file permissions and sharing settings
-- Ensure case-sensitive filename matching
-
-#### 3. Permission Denied
-```
-Error: The user does not have sufficient permissions
-```
-**Solution:**
-- Check API scopes in your Google Cloud Console
-- Ensure your OAuth app has Drive API permissions
-- Verify you have edit permissions for the file
-
-#### 4. Token Expired
-```
-Error: Invalid credentials (access token expired)
-```
-**Solution:**
-- Use refresh token for automatic token renewal
-- Regenerate tokens from Google OAuth Playground
-- Check token expiration time
-
-### Getting Fresh Tokens
-
-Use Google OAuth 2.0 Playground:
-1. Go to https://developers.google.com/oauthplayground
-2. Select "Drive API v3" scopes
-3. Authorize with your Google account
-4. Exchange authorization code for tokens
-5. Use the refresh token in your `.env` file
-
-### Debug Mode
-
-Enable detailed error reporting:
-```php
-// Enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// Test credentials step by step
-$drive = SimpleDrive::fromEnv();
-echo "Connection successful!\n";
-```
-
-## 📄 File Structure
-
-```
-google-drive-php/
-├── src/
-│   └── SimpleDrive.php         # Main library class
-├── examples/
-│   ├── operations/
-│   │   ├── index.php          # Interactive menu
-│   │   ├── upload_example.php # Upload operations
-│   │   ├── move_example.php   # Move operations
-│   │   ├── delete_example.php # Delete operations
-│   │   └── download_example.php # Download operations
-│   └── README.md              # Examples documentation
-├── vendor/                     # Composer dependencies
-├── .env                       # Your credentials
-├── composer.json              # Dependencies
-├── quick_start.php            # Quick test script
-├── test_credentials.php       # Credential tester
-└── README.md                  # This file
-```
-
-## 📄 License
-
-This library is open-sourced software licensed under the MIT license.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Test your changes with the examples
-4. Submit a pull request
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by [yaza-putu/laravel-google-drive-storage](https://github.com/yaza-putu/laravel-google-drive-storage)
+- Built on [Google API PHP Client](https://github.com/googleapis/google-api-php-client)
+- Design patterns from Laravel ecosystem
 
 ## 📞 Support
 
-For issues and questions:
-1. Check the comprehensive examples in `/examples/operations/`
-2. Review the troubleshooting section above
-3. Test with the provided test files
-4. Create an issue with detailed error information
+- 📧 Email: faizn103a@gmail.com  
+- 🐛 Issues: [GitHub Issues](https://github.com/faiznurullah/google-drive-php/issues)
+- 📖 Documentation: [README_STATIC.md](README_STATIC.md)
 
 ---
 
-## 🎉 Quick Start Summary
-
-```bash
-# 1. Install dependencies
-composer install
-
-# 2. Setup .env with your credentials
-cp .env.example .env
-# Edit .env with your Google Drive credentials
-
-# 3. Test your setup
-php quick_start.php
-
-# 4. Try specific operations
-php examples/operations/upload_example.php
-php examples/operations/download_example.php
-php examples/operations/move_example.php
-php examples/operations/delete_example.php
-
-# 5. Use interactive menu
-php examples/operations/index.php
-```
-
-**🎯 Your Google Drive PHP library is ready to use!**
-
-For complete examples documentation, see [`EXAMPLES_COMPLETE.md`](EXAMPLES_COMPLETE.md)
+**Made with ❤️ for the PHP community**

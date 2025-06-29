@@ -1,33 +1,23 @@
-# Google Drive PHP Library - Examples
+# Examples
 
-Folder ini berisi contoh-contoh lengkap penggunaan Google Drive PHP Library untuk berbagai operasi.
+This directory contains examples of how to use the Google Drive PHP library with different patterns and approaches.
 
-## 📁 Struktur Examples
+## Available Examples
 
-```
-examples/
-├── operations/
-│   ├── index.php              # Menu utama untuk menjalankan contoh
-│   ├── upload_example.php     # Contoh upload file
-│   ├── move_example.php       # Contoh memindahkan file/folder
-│   ├── delete_example.php     # Contoh menghapus file/folder
-│   ├── download_example.php   # Contoh download file/folder
-│   └── downloads/            # Folder hasil download (auto-created)
-└── direct_credentials_example.php  # Contoh dengan direct credentials
-```
+### 1. `static_pattern_demo.php`
+**Complete demonstration of static pattern usage**
 
-## 🚀 Cara Menjalankan
+Shows all features of the library using the static helper pattern:
+- Basic file operations (upload, download, delete)
+- Folder operations (create, list, delete)
+- Using Facade pattern for alternative access
+- Sharing and permissions
+- Search and listing
+- Batch operations
+- File operations (copy, move, rename)
+- Download to local files
 
-### 1. Quick Start (Recommended)
-```bash
-# Jalankan menu interaktif
-cd examples/operations
-php index.php
-```
-
-### 2. Jalankan Contoh Individual
-```bash
-# Upload example
+This is the **main example** that demonstrates the complete power of the library.
 php examples/operations/upload_example.php
 
 # Move example  
@@ -178,3 +168,83 @@ Untuk bantuan lebih lanjut:
 - Periksa file `TESTING_GUIDE.md` untuk troubleshooting
 - Lihat `SETUP.md` untuk setup ulang credentials
 - Jalankan `debug_step_by_step.php` untuk diagnosis masalah
+
+## Quick Start
+
+1. **Setup Environment Variables**
+   ```bash
+   # Create .env file in root directory or set environment variables
+   GOOGLE_DRIVE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+   GOOGLE_DRIVE_CLIENT_SECRET=your-client-secret  
+   GOOGLE_DRIVE_REFRESH_TOKEN=your-refresh-token
+   GOOGLE_DRIVE_ACCESS_TOKEN=your-access-token  # optional
+   ```
+
+2. **Run the Example**
+   ```bash
+   cd examples
+   php static_pattern_demo.php
+   ```
+
+## Design Pattern
+
+This library uses a **Static Helper Pattern** inspired by `yaza-putu/laravel-google-drive-storage` but adapted for general PHP usage:
+
+- **Static Methods**: All operations are accessible via static methods
+- **Auto-initialization**: Automatically initializes from environment variables
+- **Facade Pattern**: Alternative access through `GDrive` facade
+- **Factory Pattern**: Clean client creation and configuration
+- **Helper Pattern**: Utility functions for file operations
+
+## Key Benefits
+
+✅ **No Object Instantiation**: Direct static method calls
+✅ **Clean API**: Simple and intuitive method names  
+✅ **Auto Configuration**: Reads from environment automatically
+✅ **Framework Agnostic**: Works with any PHP project
+✅ **Laravel Compatible**: Easy integration with Laravel projects
+✅ **Production Ready**: Error handling and robust design
+
+## Usage Patterns
+
+### 1. Direct Static Usage
+```php
+use GoogleDrivePHP\GoogleDrive;
+
+// Upload file
+$fileId = GoogleDrive::put('test.txt', 'Hello World!');
+
+// Download file  
+$content = GoogleDrive::get('test.txt');
+
+// List files
+$files = GoogleDrive::files();
+```
+
+### 2. Using Facade
+```php
+use GoogleDrivePHP\Facades\GDrive;
+
+// Same operations, alternative syntax
+$fileId = GDrive::put('test.txt', 'Hello World!');
+$content = GDrive::get('test.txt');
+$files = GDrive::files();
+```
+
+### 3. Manual Configuration
+```php
+// If you don't want to use environment variables
+GoogleDrive::init([
+    'client_id' => 'your-client-id',
+    'client_secret' => 'your-client-secret', 
+    'refresh_token' => 'your-refresh-token',
+    'access_token' => 'your-access-token' // optional
+]);
+```
+
+## Next Steps
+
+After trying the examples, check out:
+- [Main README](../README.md) for complete documentation
+- [Static Pattern Guide](../README_STATIC.md) for design pattern details
+- [Credentials Setup](../CREDENTIALS.md) for Google API setup

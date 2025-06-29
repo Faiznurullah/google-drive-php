@@ -1,3 +1,0 @@
-This is test file 2 for download.
-With different content.
-For testing purposes.

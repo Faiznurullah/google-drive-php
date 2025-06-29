@@ -1,3 +1,0 @@
-This is test file 1 for download.
-Content line 2.
-Content line 3.

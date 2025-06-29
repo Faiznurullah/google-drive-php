@@ -1,138 +1,136 @@
 <?php
 
-declare(strict_types=1);
-
 namespace GoogleDrivePHP\Contracts;
 
+/**
+ * Google Drive Interface
+ * 
+ * Kontrak untuk operasi Google Drive
+ */
 interface GoogleDriveInterface
 {
     /**
-     * Get the contents of a file.
-     *
-     * @param string $path The path to the file
-     * @return string|null The file contents or null if not found
+     * Upload file dari string content
      */
-    public function get(string $path): ?string;
+    public static function put(string $filename, string $content, ?string $folderId = null): string;
 
     /**
-     * Store the given contents at the given path.
-     *
-     * @param string $path The path where to store the contents
-     * @param string $contents The contents to store
-     * @param array<string, mixed> $options Additional options
-     * @return bool True on success, false on failure
+     * Upload file dari path lokal
      */
-    public function put(string $path, string $contents, array $options = []): bool;
+    public static function putFile(string $localPath, ?string $filename = null, ?string $folderId = null): string;
 
     /**
-     * Store the given file at the given path.
-     *
-     * @param string $path The path where to store the file
-     * @param resource|string|\SplFileInfo $file The file to store
-     * @param array<string, mixed> $options Additional options
-     * @return bool True on success, false on failure
+     * Download file content
      */
-    public function putFile(string $path, $file, array $options = []): bool;
+    public static function get(string $filename): ?string;
 
     /**
-     * Get a read-stream for the file at the given path.
-     *
-     * @param string $path The path to the file
-     * @return resource|null The file stream or null if not found
+     * Download file by ID
      */
-    public function readStream(string $path);
+    public static function getById(string $fileId): ?string;
 
     /**
-     * Store the given stream at the given path.
-     *
-     * @param string $path The path where to store the stream
-     * @param resource $resource The stream resource
-     * @param array<string, mixed> $options Additional options
-     * @return bool True on success, false on failure
+     * Download file ke path lokal
      */
-    public function writeStream(string $path, $resource, array $options = []): bool;
+    public static function downloadToFile(string $filename, string $localPath): bool;
 
     /**
-     * Delete the file at the given path.
-     *
-     * @param string $path The path to the file to delete
-     * @return bool True on success, false on failure
+     * Delete file
      */
-    public function delete(string $path): bool;
+    public static function delete(string $filename): bool;
 
     /**
-     * Determine if a file exists.
-     *
-     * @param string $path The path to check
-     * @return bool True if exists, false otherwise
+     * Delete file by ID
      */
-    public function exists(string $path): bool;
+    public static function deleteById(string $fileId): bool;
 
     /**
-     * Get the file size of a given file.
-     *
-     * @param string $path The path to the file
-     * @return int The file size in bytes
-     * @throws GoogleDriveException If file not found
+     * Copy file
      */
-    public function size(string $path): int;
+    public static function copy(string $source, string $destination, ?string $folderId = null): string;
 
     /**
-     * Get the last modification time of the file.
-     *
-     * @param string $path The path to the file
-     * @return int The last modification timestamp
-     * @throws GoogleDriveException If file not found
+     * Move file ke folder
      */
-    public function lastModified(string $path): int;
+    public static function move(string $filename, string $folderId): bool;
 
     /**
-     * Get an array of all files in a directory.
-     *
-     * @param string $directory The directory path to list
-     * @return array<int, array<string, mixed>> Array of file information
+     * Rename file
      */
-    public function files(string $directory = ''): array;
+    public static function rename(string $oldName, string $newName): bool;
 
     /**
-     * Get all directories within a given directory.
-     *
-     * @param string $directory The directory path to list
-     * @return array<int, array<string, mixed>> Array of directory information
+     * Check if file exists
      */
-    public function directories(string $directory = ''): array;
+    public static function exists(string $filename): bool;
 
     /**
-     * Create a directory.
-     *
-     * @param string $path The directory path to create
-     * @return bool True on success, false on failure
+     * Get file information
      */
-    public function makeDirectory(string $path): bool;
+    public static function getFileInfo(string $filename): ?array;
 
     /**
-     * Recursively delete a directory.
-     *
-     * @param string $path The directory path to delete
-     * @return bool True on success, false on failure
+     * List files
      */
-    public function deleteDirectory(string $path): bool;
+    public static function files(?string $folderId = null, int $limit = 100): array;
 
     /**
-     * Copy a file to a new location.
-     *
-     * @param string $from The source file path
-     * @param string $to The destination file path
-     * @return bool True on success, false on failure
+     * Search files
      */
-    public function copy(string $from, string $to): bool;
+    public static function search(string $query, int $limit = 100): array;
 
     /**
-     * Move a file to a new location.
-     *
-     * @param string $from The source file path
-     * @param string $to The destination file path
-     * @return bool True on success, false on failure
+     * Create directory
      */
-    public function move(string $from, string $to): bool;
+    public static function makeDir(string $folderName, ?string $parentId = null): string;
+
+    /**
+     * Delete directory
+     */
+    public static function deleteDir(string $folderName): bool;
+
+    /**
+     * List folders
+     */
+    public static function folders(?string $parentId = null, int $limit = 100): array;
+
+    /**
+     * Find folder ID by name
+     */
+    public static function findFolderId(string $folderName): ?string;
+
+    /**
+     * Share file with email
+     */
+    public static function shareWithEmail(string $filename, string $email, string $role = 'reader'): bool;
+
+    /**
+     * Make file public
+     */
+    public static function makePublic(string $filename): string;
+
+    /**
+     * Get shareable link
+     */
+    public static function getShareableLink(string $filename): ?string;
+
+    /**
+     * Upload multiple files
+     */
+    public static function putMultiple(array $files, ?string $folderId = null): array;
+
+    /**
+     * Delete multiple files
+     */
+    public static function deleteMultiple(array $filenames): array;
+
+    /**
+     * Backup folder
+     */
+    public static function backupFolder(?string $folderId = null, string $localPath = './backup'): array;
+
+    /**
+     * List all contents (files + folders)
+     */
+    public static function all(?string $folderId = null, bool $recursive = false): array;
 }
